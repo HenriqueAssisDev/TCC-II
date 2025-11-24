@@ -1,0 +1,82 @@
+{
+  "IRPF2025": {
+    "nome": "IRPF 2025",
+    "versao_local": "1.7",
+    "versao_disponivel": "1.7",
+    "url_download": "https://downloadirpf.receita.fazenda.gov.br/irpf/2025/irpf/arquivos/IRPF2025Win64v1.7.exe",
+    "nome_arquivo": "IRPF2025Win64v1.7.exe",
+    "atalho_nome": "IRPF2025.lnk"
+  },
+  "IRPF2024": {
+    "nome": "IRPF 2024",
+    "versao_local": "1.8",
+    "versao_disponivel": "1.8",
+    "url_download": "https://downloadirpf.receita.fazenda.gov.br/irpf/2024/irpf/arquivos/IRPF2024Win64v1.8.exe",
+    "nome_arquivo": "IRPF2024Win64v1.8.exe",
+    "atalho_nome": "IRPF2024.lnk"
+  },
+  "DIRF2025": {
+    "nome": "DIRF 2025",
+    "versao_local": "1.0",
+    "versao_disponivel": "1.0",
+    "url_download": "https://servicos.receita.fazenda.gov.br/publico/programas/Dirf/2025/Dirf2025Win64v1.0.exe",
+    "nome_arquivo": "Dirf2025Win64v1.0.exe",
+    "atalho_nome": "Dirf2025.lnk"
+  },
+  "CTF": {
+    "nome": "DCTF Mensal 3.8",
+    "versao_local": "3.8",
+    "versao_disponivel": "3.8",
+    "url_download": "https://servicos.receita.fazenda.gov.br/publico/programas/dctf-pgd/dctfmensalv3-8.exe",
+    "nome_arquivo": "dctfmensalv3-8.exe",
+    "atalho_nome": "DCTF Mensal 3.8.lnk"
+  },
+  "RECEITANETBX": {
+    "nome": "Receitanet BX 1.9.24",
+    "versao_local": "1.9.24",
+    "versao_disponivel": "1.9.24",
+    "url_download": "https://servicos.receita.fazenda.gov.br/publico/programas/ReceitanetBX/ReceitanetBX-1.9.24.exe",
+    "nome_arquivo": "ReceitanetBX-1.9.24.exe",
+    "atalho_nome": "Receitanet BX 1.9.24.lnk"
+  },
+"RECEITANET": {
+    "nome": "Receitanet",
+    "versao_local": "1.32",
+    "versao_disponivel": "1.32",
+    "url_download": "https://servicos.receita.fazenda.gov.br/publico/programas/receitanet/Receitanet-1.32-Assinado.exe",
+    "nome_arquivo": "Receitanet-1.32-Assinado.exe",
+    "atalho_nome": "Receitanet 1.32.lnk"
+  },
+  "SPED_FISCAL": {
+    "nome": "SPED Fiscal (EFD ICMS IPI)",
+    "versao_local": "6.0.1",
+    "versao_disponivel": "6.0.1",
+    "url_download": "https://servicos.receita.fazenda.gov.br/publico/programas/Sped/SpedFiscal/SpedEFD_w64-6.0.1.exe",
+    "nome_arquivo": "SpedEFD_w64-6.0.1.exe",
+    "atalho_nome": "EFD ICMS IPI.lnk"
+  },
+  "SPED_CONTABIL": {
+    "nome": "SPED Contábil",
+    "versao_local": "10.3.3",
+    "versao_disponivel": "10.3.3",
+    "url_download": "https://servicos.receita.fazenda.gov.br/publico/programas/Sped/SpedContabil/SPEDContabil_w64-10.3.3.exe",
+    "nome_arquivo": "SPEDContabil_w64-10.3.3.exe",
+    "atalho_nome": "SpedContabil.lnk"
+  },
+  "SPED_CONTRIBUICOES": {
+    "nome": "SPED Contribuições",
+    "versao_local": "6.1.0",
+    "versao_disponivel": "6.1.0",
+    "url_download": "https://servicos.receita.fazenda.gov.br/publico/programas/SpedPisCofinsPVA/EFD-Contribuicoes_w64-6.1.0.exe",
+    "nome_arquivo": "EFD-Contribuicoes_w64-6.1.0.exe",
+    "atalho_nome": "EFD-Contribuicoes.lnk"
+  },
+  "SPED_ECF": {
+    "nome": "SPED ECF",
+    "versao_local": "11.3.4",
+    "versao_disponivel": "11.3.4",
+    "url_download": "https://servicos.receita.fazenda.gov.br/publico/programas/Sped/ECF/SpedEcf_w64-11.3.4.exe",
+    "nome_arquivo": "SpedEcf_w64-11.3.4.exe",
+    "atalho_nome": "SpedECF.lnk"
+  }
+}

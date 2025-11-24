@@ -1,0 +1,30 @@
+# === Pastas com executáveis e instaladores (NÃO versionar) ===
+Instaladores/
+Programas/
+Atalhos/
+mysql/
+
+# Logs
+logs/
+*.log
+
+# Python / build
+__pycache__/
+*.py[cod]
+*.pyc
+dist/
+build/
+*.spec
+
+# Ambientes virtuais
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Windows
+Thumbs.db
+desktop.ini
+
