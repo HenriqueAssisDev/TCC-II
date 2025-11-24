@@ -29,12 +29,12 @@ O **Integrador Receita** é uma aplicação desktop desenvolvida em Python que c
 
 ## 🚀 Como Usar
 
-### Executável Portátil (Recomendado)
+### Executar via Código-Fonte
+
+1. Clone o repositório:
+
+### Executável Portátil (Em desenvolvimento)
 
 1. Baixe a pasta `IntegradorReceita` completa
 2. Execute `IntegradorReceita.exe`
 3. Pronto! Os programas instalados aparecerão automaticamente
-
-### Executar via Código-Fonte
-
-1. Clone o repositório:
