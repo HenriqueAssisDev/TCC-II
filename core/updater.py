@@ -7,14 +7,18 @@ Gerencia downloads, execução de instaladores e criação de atalhos.
 import os
 import json
 import subprocess
-from typing import Dict, Optional, Tuple
+import time
+from typing import Dict, Optional, Tuple, Callable
+
 
 from core.paths import (
     PROGRAMS_DIR,
+    INSTALADORES_DIR, 
     SHORTCUTS_DIR,
     VERSIONS_FILE,
     ensure_directories,
 )
+
 from core.logger import log_info, log_error, log_warning
 from core.programs_registry import (
     get_program_info,
@@ -95,8 +99,18 @@ class Updater:
         log_info(f"[UPDATE] {sum(updates_available.values())} atualizações disponíveis")
         return updates_available
 
-    def download_program(self, program_id: str, callback=None) -> bool:
-        """Baixa o instalador de um programa."""
+    # ===== FUNÇÃO DOWNLOAD_PROGRAM AGORA ESTÁ DENTRO DA CLASSE =====
+    def download_program(self, program_id: str, callback: Optional[Callable] = None) -> bool:
+        """
+        Baixa o instalador de um programa (versão simples e funcional).
+
+        Args:
+            program_id: ID do programa (ex: "IRPF2025")
+            callback: Função de callback para atualizar progresso (opcional)
+
+        Returns:
+            bool: True se o download foi bem-sucedido
+        """
         info = get_program_info(program_id)
         if not info:
             log_error(f"[DOWNLOAD] Programa {program_id} não encontrado")
@@ -107,59 +121,113 @@ class Updater:
             log_error(f"[DOWNLOAD] URL não encontrada para {program_id}")
             return False
 
-        exe_name = info.get("executavel_nome", f"{program_id}.exe")
-        download_path = os.path.join(PROGRAMS_DIR, exe_name)
+        exe_name = info.get("nome_arquivo", f"{program_id}.exe")
+        download_path = os.path.join(INSTALADORES_DIR, exe_name)
 
         try:
             import requests
 
-            log_info(f"[DOWNLOAD] Iniciando download de {program_id}")
+            program_name = info.get("nome", program_id)
+            log_info(f"[DOWNLOAD] Iniciando download de {program_id} ({program_name})")
+            log_info(f"[DOWNLOAD] URL: {url}")
+            log_info(f"[DOWNLOAD] Destino: {download_path}")
+
+            # Configurar estado de download
             self.is_downloading = True
             self.current_download = program_id
             self.download_progress = 0
 
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+            # Timestamp do início
+            start_time = time.time()
+
+            # Headers para evitar bloqueio
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            }
+
+            # Fazer request
             response = requests.get(url, headers=headers, stream=True, timeout=60)
             response.raise_for_status()
 
+            # Obter tamanho total
             total_size = int(response.headers.get("content-length", 0))
+            total_mb = total_size / (1024 * 1024) if total_size > 0 else 0
+
+            log_info(f"[DOWNLOAD] Tamanho total: {total_mb:.1f} MB")
+
             downloaded_size = 0
 
+            # Download em chunks
             with open(download_path, "wb") as file:
                 for chunk in response.iter_content(chunk_size=8192):
+                    if not self.is_downloading:
+                        log_warning(f"[DOWNLOAD] Download de {program_id} cancelado")
+                        return False
+
                     if chunk:
                         file.write(chunk)
                         downloaded_size += len(chunk)
+
+                        # Calcular progresso
                         if total_size > 0:
-                            self.download_progress = int((downloaded_size / total_size) * 100)
-                            if callback:
-                                callback(self.download_progress)
+                            progress = int((downloaded_size / total_size) * 100)
+                            self.download_progress = progress
+
+                            # Callback simples (só porcentagem)
+                            if callback and progress % 5 == 0:  # Atualiza a cada 5%
+                                downloaded_mb = downloaded_size / (1024 * 1024)
+                                callback(progress, downloaded_mb, total_mb, start_time=start_time)
+
+            # Finalizar
+            elapsed_time = time.time() - start_time
+            downloaded_mb = downloaded_size / (1024 * 1024)
+            download_speed = downloaded_mb / elapsed_time if elapsed_time > 0 else 0
+
+            # Callback final
+            if callback:
+                callback(100, downloaded_mb, total_mb, start_time=start_time)
 
             self.download_progress = 100
             self.is_downloading = False
             self.current_download = None
 
+            # Verificar arquivo
             if os.path.exists(download_path) and os.path.getsize(download_path) > 0:
-                log_info(f"[DOWNLOAD] {program_id} baixado com sucesso")
+                actual_size_mb = os.path.getsize(download_path) / (1024 * 1024)
+                log_info(f"[DOWNLOAD] {program_id} baixado com sucesso!")
+                log_info(f"[DOWNLOAD] Arquivo: {download_path}")
+                log_info(f"[DOWNLOAD] Tamanho: {actual_size_mb:.1f} MB")
+                log_info(f"[DOWNLOAD] Velocidade média: {download_speed:.1f} MB/s")
+                log_info(f"[DOWNLOAD] Tempo total: {elapsed_time:.1f} segundos")
                 return True
 
-            log_error(f"[DOWNLOAD] Arquivo vazio: {download_path}")
+            log_error(f"[DOWNLOAD] Arquivo vazio ou não criado: {download_path}")
             return False
 
         except ImportError:
-            log_error("[DOWNLOAD] 'requests' não instalado. Execute: pip install requests")
+            log_error("[DOWNLOAD] Biblioteca 'requests' não instalada. Execute: pip install requests")
             self.is_downloading = False
             self.current_download = None
             return False
+
         except Exception as e:
+            import traceback
+            erro_detalhado = traceback.format_exc()
             log_error(f"[DOWNLOAD] Erro ao baixar {program_id}: {e}")
+            log_error(f"[DOWNLOAD] Detalhes:\n{erro_detalhado}")
             self.is_downloading = False
             self.current_download = None
             return False
 
     def install_program(self, program_id: str) -> bool:
         """Executa o instalador do programa."""
-        installer_path = get_installer_path(program_id)
+        info = get_program_info(program_id)
+        if not info:
+            log_error(f"[INSTALL] Programa {program_id} não encontrado")
+            return False
+
+        exe_name = info.get("nome_arquivo", f"{program_id}.exe")
+        installer_path = os.path.join(INSTALADORES_DIR, exe_name)
 
         if not os.path.exists(installer_path):
             log_error(f"[INSTALL] Instalador não encontrado: {installer_path}")
@@ -247,9 +315,11 @@ class Updater:
         }
 
 
+# ===== INSTÂNCIA GLOBAL =====
 updater = Updater()
 
 
+# ===== FUNÇÕES DE CONVENIÊNCIA =====
 def download_and_install(program_id: str, progress_callback=None) -> Tuple[bool, str]:
     """Função de conveniência: baixa e instala um programa."""
     try:
@@ -289,10 +359,44 @@ def create_all_shortcuts() -> int:
 
 
 if __name__ == "__main__":
-    print("=== TESTE UPDATER ===")
-    updates = updater.check_for_updates()
-    print(f"Atualizações disponíveis: {sum(updates.values())}")
-    for program_id, needs_update in updates.items():
-        if needs_update:
-            print(f"  - {program_id}")
-    print("=====================")
+    # TESTE DIRETO DO DOWNLOADER
+    from core.programs_registry import get_program_info
+    import os
+
+    program_id = "IRPF2025"
+
+    print("=" * 60)
+    print("TESTE DIRETO DO DOWNLOADER")
+    print("=" * 60)
+
+    info = get_program_info(program_id)
+    print(f"\n[INFO] Programa: {info.get('nome')}")
+    print(f"[INFO] URL: {info.get('url_download')}")
+    print(f"[INFO] Arquivo: {info.get('nome_arquivo')}")
+
+    def simple_callback(progress, downloaded_mb, total_mb, **kwargs):
+        """Callback simples para teste."""
+        if progress % 10 == 0:  # Mostra a cada 10%
+            print(f"[PROGRESS] {progress}% - {downloaded_mb:.1f}/{total_mb:.1f} MB")
+
+    print(f"\n[DOWNLOAD] Iniciando download...")
+    print("-" * 60)
+
+    success = updater.download_program(program_id, simple_callback)
+
+    print("-" * 60)
+    print(f"\n[RESULTADO] Download: {'✅ SUCESSO' if success else '❌ FALHOU'}")
+
+    # Verificar arquivo
+    exe_name = info.get("nome_arquivo", f"{program_id}.exe")
+    full_path = os.path.join(INSTALADORES_DIR, exe_name)
+
+    print(f"\n[VERIFICAÇÃO]")
+    print(f"  Caminho: {full_path}")
+    print(f"  Existe?: {os.path.exists(full_path)}")
+
+    if os.path.exists(full_path):
+        size_mb = os.path.getsize(full_path) / (1024 * 1024)
+        print(f"  Tamanho: {size_mb:.1f} MB")
+
+    print("=" * 60)

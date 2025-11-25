@@ -7,12 +7,13 @@ Exibe lista de programas, status e botões de ação.
 import tkinter as tk
 from tkinter import ttk, messagebox
 import threading
+import os
 
 from core.programs_registry import (
     get_program_list,
-    get_all_programs_status,
     is_program_installed,
     run_program,
+    get_program_info,
 )
 from core.updater import download_and_install, updater
 from core.logger import log_info, log_error
@@ -27,7 +28,7 @@ def create_main_window():
     """
     root = tk.Tk()
     root.title("Integrador Receita - Gerenciador de Programas da Receita Federal")
-    root.geometry("1200x700")
+    root.geometry("1200x750")  # Aumentei um pouco para caber o aviso
     root.resizable(True, True)
 
     # Configuração de estilo
@@ -62,7 +63,38 @@ def create_main_window():
         font=("Segoe UI", 18, "bold"),
         fg="#0066cc",
     )
-    title_label.pack(pady=(0, 15))
+    title_label.pack(pady=(0, 10))
+
+    # ===== AVISO SOBRE ATALHOS =====
+    info_frame = tk.Frame(
+        main_frame,
+        bg="#fff3cd",
+        relief=tk.RIDGE,
+        borderwidth=2
+    )
+    info_frame.pack(fill=tk.X, pady=(0, 15), padx=5)
+
+    info_icon = tk.Label(
+        info_frame,
+        text="ℹ️",
+        font=("Segoe UI", 16),
+        bg="#fff3cd",
+        fg="#856404"
+    )
+    info_icon.pack(side=tk.LEFT, padx=(10, 5), pady=8)
+
+    info_text = tk.Label(
+        info_frame,
+        text="Para que um programa seja reconhecido como 'Instalado', "
+             "coloque o atalho (.lnk) do executável na pasta 'Atalhos' "
+             "dentro do diretório do Integrador.",
+        font=("Segoe UI", 11),
+        bg="#fff3cd",
+        fg="#856404",
+        justify=tk.LEFT,
+        wraplength=1000
+    )
+    info_text.pack(side=tk.LEFT, padx=(0, 10), pady=8)
 
     # Frame da tabela
     table_frame = ttk.Frame(main_frame)
@@ -119,39 +151,90 @@ def create_main_window():
 
         log_info(f"[UI] Tabela atualizada com {len(programs)} programas")
 
-    # Função de atualização de um programa
+    # Mensagem orientando sobre o atalho na pasta Atalhos
+    def show_shortcut_hint(program_name: str):
+        messagebox.showinfo(
+            "Atalho não encontrado",
+            f"O {program_name} não foi reconhecido como instalado.\n\n"
+            f"📁 Para que apareça como 'Instalado':\n\n"
+            f"  1. Localize o executável (.exe) do programa no seu computador\n"
+            f"  2. Crie um atalho (.lnk) dele\n"
+            f"  3. Copie o atalho para a pasta 'Atalhos' dentro do diretório do Integrador\n\n"
+            f"Após isso, clique em 'Atualizar Lista' para ver a mudança."
+        )
+
+    # Função de atualização de um programa (versão simples)
     def update_program(program_id: str):
         """
-        Baixa e instala um programa específico.
+        Baixa e instala um programa específico (versão simples).
 
         Args:
             program_id (str): ID do programa a ser atualizado
         """
+        info = get_program_info(program_id)
+        if not info:
+            messagebox.showerror("Erro", f"Programa {program_id} não encontrado")
+            return
+
+        program_name = info.get("nome", program_id)
+
+        # Verificar se já está baixando algum programa
+        if updater.is_downloading:
+            messagebox.showwarning(
+                "Download em andamento",
+                f"Já existe um download em andamento ({updater.current_download}).\n"
+                f"Aguarde a conclusão antes de iniciar outro.",
+            )
+            return
+
         def download_thread():
+            """Thread de download e instalação."""
             try:
-                log_info(f"[UI] Iniciando download de {program_id}")
-                messagebox.showinfo(
-                    "Download Iniciado",
-                    f"Download de {program_id} iniciado.\nAguarde...",
+                log_info(f"[UI] Iniciando download de {program_id} ({program_name})")
+
+                # Mostrar mensagem de início
+                root.after(
+                    0,
+                    lambda: messagebox.showinfo(
+                        "Download Iniciado",
+                        f"Download de {program_name} iniciado.\n\nAguarde a conclusão...",
+                    ),
                 )
 
+                # Faz download + instalação
                 success, message = download_and_install(program_id)
 
                 if success:
-                    messagebox.showinfo("Sucesso", message)
                     log_info(f"[UI] {program_id} atualizado com sucesso")
-                else:
-                    messagebox.showerror("Erro", message)
-                    log_error(f"[UI] Erro ao atualizar {program_id}: {message}")
 
-                # Atualiza a tabela após download
-                root.after(0, refresh_table)
+                    # Mensagem de sucesso com orientação
+                    root.after(0, lambda: messagebox.showinfo(
+                        "Sucesso",
+                        f"{message}\n\n"
+                        f"📋 IMPORTANTE:\n\n"
+                        f"Após concluir a instalação do programa:\n"
+                        f"  1. Localize o executável (.exe) instalado\n"
+                        f"  2. Crie um atalho (.lnk) dele\n"
+                        f"  3. Copie o atalho para a pasta 'Atalhos' do Integrador\n\n"
+                        f"Assim o programa será reconhecido como 'Instalado'."
+                    ))
+                else:
+                    log_error(f"[UI] Erro ao atualizar {program_id}: {message}")
+                    root.after(0, lambda: messagebox.showerror("Erro", message))
 
             except Exception as e:
                 log_error(f"[UI] Erro inesperado ao atualizar {program_id}: {e}")
-                messagebox.showerror("Erro", f"Erro inesperado: {str(e)}")
+                root.after(
+                    0,
+                    lambda: messagebox.showerror(
+                        "Erro", f"Erro inesperado: {str(e)}"
+                    ),
+                )
+            finally:
+                # Atualizar tabela após download
+                root.after(0, refresh_table)
 
-        # Executa download em thread separada para não travar a interface
+        # Executar download em thread separada para não travar a interface
         thread = threading.Thread(target=download_thread, daemon=True)
         thread.start()
 
@@ -170,7 +253,8 @@ def create_main_window():
                 )
                 messagebox.showinfo(
                     "Atualizações Disponíveis",
-                    f"{available} programa(s) com atualizações disponíveis:\n\n{programs_list}",
+                    f"{available} programa(s) com atualizações disponíveis:\n\n"
+                    f"{programs_list}",
                 )
             else:
                 messagebox.showinfo(
@@ -199,14 +283,12 @@ def create_main_window():
         nome = item["values"][0]
         status = item["values"][1]
 
-        # Se instalado, executa direto
+        # Se instalado, tenta executar
         if status == "Instalado":
             ok = run_program(program_id)
             if not ok:
-                messagebox.showerror(
-                    "Erro ao executar",
-                    f"Não foi possível abrir {nome}.\nVerifique se o atalho ou executável existe.",
-                )
+                # Se não conseguiu executar, mostra dica do atalho
+                show_shortcut_hint(nome)
             return
 
         # Se não instalado, pergunta se quer baixar

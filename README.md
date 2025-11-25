@@ -1,40 +1,56 @@
-# Integrador Receita
+# 🏛️ Integrador Receita
 
-Sistema desktop para gerenciamento centralizado de programas da Receita Federal do Brasil.
+Gerenciador centralizado dos programas da Receita Federal do Brasil.
 
-## 📋 Descrição
+O Integrador permite **baixar, instalar e executar** os principais programas da Receita Federal (IRPF, DIRF, DCTF, Receitanet, SPED etc.) a partir de uma única interface, de forma organizada e portátil.
 
-O **Integrador Receita** é uma aplicação desktop desenvolvida em Python que centraliza em uma única interface a visualização, execução e gerenciamento dos programas oficiais da Receita Federal, como IRPF, DIRF, DCTF e módulos do SPED.
+---
 
-## ✨ Funcionalidades
+## 📋 Índice
 
-- ✅ Detecção automática de programas instalados
-- ✅ Visualização de status e versões em tabela organizada
-- ✅ Execução de programas via duplo clique
-- ✅ Verificação de atualizações disponíveis
-- ✅ Interface gráfica intuitiva com Tkinter
-- ✅ Executável portátil (funciona em qualquer máquina Windows)
+- [Visão Geral](#-visão-geral)
+- [Requisitos](#-requisitos)
+- [Instalação do Integrador](#-instalação-do-integrador)
+- [Como Usar](#-como-usar)
+  - [Baixar e instalar um programa](#baixar-e-instalar-um-programa)
+  - [Reconhecimento de programas instalados (pasta Atalhos)](#reconhecimento-de-programas-instalados-pasta-atalhos)
+  - [Executar um programa instalado](#executar-um-programa-instalado)
+  - [Verificar atualizações](#verificar-atualizações)
+- [Estrutura de Pastas](#-estrutura-de-pastas)
+- [Configuração de Programas (versionsjson)](#-configuração-de-programas-versionsjson)
+- [Execução em Modo Desenvolvimento](#-execução-em-modo-desenvolvimento)
+- [Soluções de Problemas](#-soluções-de-problemas)
+- [Contribuição](#-contribuição)
+- [Licença](#-licença)
 
-## 🖥️ Programas Suportados
+---
 
-- IRPF 2025 / 2024
-- DIRF 2025
-- DCTF Mensal 3.8
-- Receitanet 1.32
-- Receitanet BX 1.9.24
-- SPED Fiscal (EFD ICMS/IPI)
-- SPED Contábil
+## 🧾 Visão Geral
+
+O **Integrador Receita** foi desenvolvido para:
+
+- Centralizar o gerenciamento dos programas da Receita Federal;
+- Evitar que o usuário tenha que procurar manualmente instaladores e atalhos;
+- Manter uma estrutura de pastas organizada: instaladores, atalhos, logs, dados etc.;
+- Ser **portátil**: pode ser copiado para qualquer pasta ou máquina Windows, mantendo seu funcionamento, desde que o Python e as dependências estejam instaladas.
+
+Programas suportados inicialmente (exemplos):
+
+- IRPF 2025
+- IRPF 2024
+- DIRF
+- DCTF
+- Receitanet
+- Receitanet BX
 - SPED Contribuições
-- SPED ECF
+- SPED EFD
+- SPED Fiscal
+- SPED ICMS/IPI
 
-## 🚀 Como Usar
+---
 
-### Executável Portátil (Recomendado)
+## 💻 Requisitos
 
-1. Baixe a pasta `IntegradorReceita` completa
-2. Execute `IntegradorReceita.exe`
-3. Pronto! Os programas instalados aparecerão automaticamente
-
-### Executar via Código-Fonte
-
-1. Clone o repositório:
+- Sistema operacional: **Windows 10 ou 11** (64 bits)
+- **Python 3.8 ou superior** instalado no sistema
+- Bibliotecas Python:

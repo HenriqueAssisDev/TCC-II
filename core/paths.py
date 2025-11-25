@@ -51,7 +51,7 @@ def get_programs_dir() -> str:
     """
     Retorna o caminho da pasta 'Programas'.
     Cria a pasta se não existir.
-    Aqui ficam os instaladores baixados.
+    Aqui ficam os programas INSTALADOS (após execução do instalador).
 
     Returns:
         str: Caminho absoluto da pasta Programas
@@ -60,6 +60,20 @@ def get_programs_dir() -> str:
     programs_dir = os.path.join(base, "Programas")
     os.makedirs(programs_dir, exist_ok=True)
     return programs_dir
+
+def get_instaladores_dir() -> str:
+    """
+    Retorna o caminho da pasta 'Instaladores'.
+    Cria a pasta se não existir.
+    Aqui ficam os instaladores BAIXADOS (.exe da Receita Federal).
+
+    Returns:
+        str: Caminho absoluto da pasta Instaladores
+    """
+    base = get_base_dir()
+    instaladores_dir = os.path.join(base, "Instaladores")
+    os.makedirs(instaladores_dir, exist_ok=True)
+    return instaladores_dir
 
 def get_shortcuts_dir() -> str:
     """
@@ -94,6 +108,7 @@ def ensure_directories():
     get_data_dir()
     get_logs_dir()
     get_programs_dir()
+    get_instaladores_dir()  # ← ADICIONADO
     get_shortcuts_dir()
 
 # Variáveis globais para uso direto
@@ -101,5 +116,6 @@ BASE_DIR = get_base_dir()
 DATA_DIR = get_data_dir()
 LOGS_DIR = get_logs_dir()
 PROGRAMS_DIR = get_programs_dir()
+INSTALADORES_DIR = get_instaladores_dir()  # ← ADICIONADO
 SHORTCUTS_DIR = get_shortcuts_dir()
 VERSIONS_FILE = get_versions_file()
