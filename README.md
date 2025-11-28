@@ -139,7 +139,7 @@ Verificar atualizações
     - Conclua a instalação normalmente pelo instalador oficial. 
 
 ## 📁 Estrutura de Pastas
-
+```text
 IntegradorReceita/
 │
 ├── main.py                    # Arquivo principal
@@ -167,7 +167,7 @@ IntegradorReceita/
 │
 └── logs/
     └── loggerReport.log       # Log principal
-
+```
 
 ## 🔧 Configuração de Programas (versions.json)
 
